@@ -1,21 +1,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
+using System;
 
 namespace ChunkRendering
 {
 	class ChunkRenderer
 	{
-	
 	    public static void render(Chunk chunk)
 	    {
 			WorldBehaviour world = chunk.World;
 			
-			GameObject camera = GameObject.Find("Main Camera");
-			Vector3 pos = camera.transform.position;
+/*			Stopwatch watch = new Stopwatch();
+			watch.Start();*/
 			
-			Stopwatch watch = new Stopwatch();
-			watch.Start();
+			int minSliceIndex = chunk.MinSliceIndex;
+				
+			Chunk frontChunk = world.GetChunk(chunk.X, chunk.Z - 1);
+			Chunk backChunk = world.GetChunk(chunk.X, chunk.Z + 1);
+			Chunk leftChunk = world.GetChunk(chunk.X - 1, chunk.Z);
+			Chunk rightChunk = world.GetChunk(chunk.X + 1, chunk.Z);
+			
+			if(frontChunk != null && frontChunk.MinSliceIndex < minSliceIndex)
+				minSliceIndex = frontChunk.MinSliceIndex;
+			
+			if(backChunk != null && backChunk.MinSliceIndex < minSliceIndex)
+				minSliceIndex = backChunk.MinSliceIndex;
+			
+			if(leftChunk != null && leftChunk.MinSliceIndex < minSliceIndex)
+				minSliceIndex = leftChunk.MinSliceIndex;
+			
+			if(rightChunk != null && rightChunk.MinSliceIndex < minSliceIndex)
+				minSliceIndex = rightChunk.MinSliceIndex;
+			
 			
 			for(int i = Chunk.NumSlices - 1; i >= 0; --i)
 			{
@@ -23,9 +40,10 @@ namespace ChunkRendering
 	        	List<int> triangles = new List<int>();
 				List<Color> colors = new List<Color>();
 				ChunkSlice chunkSlice = chunk.Slices[i];
-				int height = chunkSlice.Index * 16;
 				
-				if(i < chunk.MinSliceIndex)
+				
+				
+				if(i < minSliceIndex)
 					break;
 				
 				/*watch.Reset();
@@ -63,14 +81,12 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x, y + 1, z));
 		                        vertices.Add(new Vector3(x, y + 1, z + 1));
 		                        vertices.Add(new Vector3(x + 1, y + 1, z + 1));
-		                        vertices.Add(new Vector3(x + 1, y + 1, z));
-		
-		                        // first triangle for the block top
+								vertices.Add(new Vector3(x + 1, y + 1, z));
+
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
 		                        
-		                        // second triangle for the block top
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -80,17 +96,18 @@ namespace ChunkRendering
 								colors.Add(Color.gray);
 								colors.Add(Color.gray);
 							
-								BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Top);
+								//BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Top);
 					
 		                    }
 						
-							byte front;
+							int front;
 							if(z - 1 < 0)
 							{
-								int worldX = chunk.X << 4;
-								int worldZ = ((chunk.Z - 1) << 4);
+								int worldX = (chunk.X << 4) + x;
+								int worldZ = (chunk.Z << 4) - 1;
+								int worldY = (chunkSlice.Index * ChunkSlice.SizeY) + y;
 								
-								front = world.GetBlockType(worldX, y, worldZ);
+								front = world.GetBlockType(worldX, worldY, worldZ);
 							}
 							else
 								front = chunkSlice[x, y, z - 1];
@@ -102,13 +119,11 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x, y + 1, z));
 		                        vertices.Add(new Vector3(x + 1, y + 1, z));
 		                        vertices.Add(new Vector3(x + 1, y, z));
-		
-		                        // first triangle for the block top
+								
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
-		                        
-		                        // second triangle for the block top
+		                     
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -119,13 +134,15 @@ namespace ChunkRendering
 								colors.Add(Color.gray);
 		                    }
 						
-							byte right;
+							int right;
 							
 							if(x + 1 > 15)
 							{	
-								int worldX = ((chunk.X+1) << 4);
-								int worldZ = chunk.Z << 4;
-								right = world.GetBlockType(worldX, y, worldZ);
+								int worldX = (chunk.X << 4) + 16;
+								int worldZ = (chunk.Z << 4) + z;
+								int worldY = (chunkSlice.Index * ChunkSlice.SizeY) + y;
+								
+								right = world.GetBlockType(worldX, worldY, worldZ);
 							}
 							else
 								right = chunkSlice[x + 1, y, z];
@@ -138,12 +155,10 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x + 1, y + 1, z + 1));
 		                        vertices.Add(new Vector3(x + 1, y, z + 1));
 		
-		                        // first triangle for the block top
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
 		                        
-		                        // second triangle for the block top
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -154,13 +169,15 @@ namespace ChunkRendering
 								colors.Add(Color.gray);
 		                    }
 						
-							byte back;
+							int back;
 							
 							if(z + 1 > 15)
 							{
-								int worldX = chunk.X << 4;
-								int worldZ = ((chunk.Z + 1) << 4);
-								back = world.GetBlockType(worldX, y, worldZ);
+								int worldX = (chunk.X << 4) + x;
+								int worldZ = (chunk.Z << 4) + 16;
+								int worldY = (chunkSlice.Index * ChunkSlice.SizeY) + y;
+								
+								back = world.GetBlockType(worldX, worldY, worldZ);
 							}
 							else
 								back = chunkSlice[x, y, z + 1];
@@ -173,12 +190,10 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x, y + 1, z + 1));
 		                        vertices.Add(new Vector3(x, y, z + 1));
 		
-		                        // first triangle for the block top
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
 		                        
-		                        // second triangle for the block top
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -189,13 +204,15 @@ namespace ChunkRendering
 								colors.Add(Color.gray);
 		                    }
 						
-							byte left;
+							int left;
 							
 							if(x - 1 < 0)
 							{
-								int worldX = ((chunk.X - 1) << 4);
-								int worldZ = chunk.Z << 4;
-								left = world.GetBlockType(worldX, y, worldZ);
+								int worldX = (chunk.X << 4) - 1;
+								int worldZ = (chunk.Z << 4) + z;
+								int worldY = (chunkSlice.Index * ChunkSlice.SizeY) + y;
+								
+								left = world.GetBlockType(worldX, worldY, worldZ);
 							}
 							else
 								left = chunkSlice[x - 1, y, z];
@@ -208,12 +225,10 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x, y + 1, z));
 		                        vertices.Add(new Vector3(x, y, z));
 		
-		                        // first triangle for the block top
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
 		                        
-		                        // second triangle for the block top
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -239,12 +254,10 @@ namespace ChunkRendering
 		                        vertices.Add(new Vector3(x + 1, y, z));
 		                        vertices.Add(new Vector3(x + 1, y, z + 1));
 		
-		                        // first triangle for the block top
 		                        triangles.Add(vertexIndex);
 		                        triangles.Add(vertexIndex+1);
 		                        triangles.Add(vertexIndex+2);
 		                        
-		                        // second triangle for the block top
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
@@ -261,30 +274,15 @@ namespace ChunkRendering
 				long elapsedPreMesh = watch.ElapsedMilliseconds;
 				watch.Start();*/
 				
-				// Build the Mesh:
-		        Mesh mesh = new Mesh();
-		        mesh.vertices = vertices.ToArray();
-		        mesh.triangles = triangles.ToArray();
+				ChunkSliceEntry chunkEntry = new ChunkSliceEntry();
+				chunkEntry.Vertices = vertices;
+				chunkEntry.Triangles = triangles;
+				chunkEntry.Colors = colors;
+				chunkEntry.ParentChunk = chunk;
+				chunkEntry.SliceIndex = i;
 				
-				Vector2[] uvs = new Vector2[vertices.Count];
-        		for (int k = 0; k < uvs.Length; k++)
-            		uvs[k] = new Vector2 (vertices[k].x, vertices[k].z);
-				
-				mesh.uv = uvs;
-				
-				mesh.colors = colors.ToArray();
-				
-				mesh.RecalculateNormals();
-				mesh.RecalculateBounds ();
-				
-				/*watch.Stop();
-				long elapsedPostMesh = watch.ElapsedMilliseconds;
-				watch.Start();*/
-				
-				ChunkBehaviour behaviour = chunk.ChunkObject.GetComponent<ChunkBehaviour>();
-				GameObject chunkSliceObject = behaviour.ChunkSliceObjects[i];
-				MeshFilter filter = chunkSliceObject.GetComponent<MeshFilter>();
-				filter.mesh = mesh;
+				lock(WorldBehaviour.ChunkQueueLock)
+					WorldBehaviour.ChunkSlicesToBuild.Enqueue(chunkEntry);
 				
 				//watch.Stop();
 				//elapsedPostSet = watch.ElapsedMilliseconds;
@@ -294,7 +292,7 @@ namespace ChunkRendering
 				UnityEngine.Debug.Log("Elapsed Mesh Set " + (elapsedPostSet - elapsedPostMesh) + "ms");
 				UnityEngine.Debug.Log("Total Elapsed " + (elapsedPostSet));*/
 			}
-			watch.Stop();
+			//watch.Stop();
 			//UnityEngine.Debug.Log ("Total Elapsed " + ((double)watch.ElapsedTicks / (double)Stopwatch.Frequency) + "ms");
 	    }
 	}

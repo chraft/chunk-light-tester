@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using ChunkRendering;
 using System;
+using Chraft.Utilities.Blocks;
 
 public class Chunk
 {
@@ -18,6 +19,10 @@ public class Chunk
 	public Color ChunkColor;
 	public int MinSliceIndex;
 	
+	private int lowestY;
+	
+	private byte [,] HeightMap;
+	
 	public Chunk(int chunkX, int chunkZ, WorldBehaviour world, Color color)
 	{
 		ChunkColor = color;
@@ -32,7 +37,7 @@ public class Chunk
 		for(int i = 0; i < NumSlices; ++i)
 			Slices[i] = new ChunkSlice(i);
 		
-		System.Random rand = new System.Random();
+		/*System.Random rand = new System.Random();
 		int lowestY = 255;
 		for (int x=0; x < 16; x++)
             for (int z=0; z< 16; z++)
@@ -52,6 +57,47 @@ public class Chunk
 				}
 			}
 		
-		MinSliceIndex = lowestY / Chunk.SliceHeight;
+		MinSliceIndex = lowestY / Chunk.SliceHeight;*/
 	}
+	
+	public BlockData.Blocks GetType(int x, int y, int z)
+	{
+		ChunkSlice slice = Slices[y / Chunk.SliceHeight];
+		return (BlockData.Blocks)slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF];
+	}
+	
+	public void SetType(int x, int y, int z, BlockData.Blocks type, bool unused)
+	{
+		ChunkSlice slice = Slices[y / Chunk.SliceHeight];
+		slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF] = (byte)type;
+	}
+	
+	public void SetData(int x, int y, int z, byte data, bool unused)
+	{
+		
+	}
+	
+	public void RecalculateHeight()
+    {
+		lowestY = 255;
+        HeightMap = new byte[16, 16];
+        for (int x = 0; x < 16; x++)
+        {
+            for (int z = 0; z < 16; z++)
+                RecalculateHeight(x, z);
+        }
+		
+		MinSliceIndex = (lowestY / Chunk.SliceHeight) - 1;
+    }
+
+    public void RecalculateHeight(int x, int z)
+    {
+        int height;
+        BlockData.Blocks blockType;
+        for (height = 127; height > 0 && (GetType(x, height - 1, z) == 0 || (blockType = GetType(x, height - 1, z)) == BlockData.Blocks.Leaves || blockType == BlockData.Blocks.Water || blockType == BlockData.Blocks.Still_Water); height--) ;
+        HeightMap[x, z] = (byte)height;
+
+        if (height < lowestY)
+            lowestY = height;
+    }
 }

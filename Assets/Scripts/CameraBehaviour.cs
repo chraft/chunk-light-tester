@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using ChunkRendering;
  
  
 public class CameraBehaviour : MonoBehaviour {
@@ -9,6 +10,8 @@ public class CameraBehaviour : MonoBehaviour {
      
     float mHdg = 0F;
     float mPitch = 0F;
+	
+	private float accumulator; 
      
     void Start()
     {
@@ -41,6 +44,21 @@ public class CameraBehaviour : MonoBehaviour {
     			ChangePitch(-deltaY);
     		}
     	}
+		
+		/*accumulator += Time.deltaTime;
+		
+		if(accumulator >= 1.0f)
+		{	
+			RaycastHit hit;
+			Ray ray = camera.ScreenPointToRay (new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
+	        Physics.Raycast(ray, out hit, 512);
+			
+			if(hit.collider != null)
+			{
+				GameObject gameObj = hit.collider.gameObject;
+				gameObj.GetComponent("ChunkBehaviour")
+			}
+		}*/
     }
      
     void MoveForwards(float aVal)

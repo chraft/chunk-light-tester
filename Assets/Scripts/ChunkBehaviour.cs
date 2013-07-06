@@ -22,8 +22,6 @@ public class ChunkBehaviour : MonoBehaviour {
 			newObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y + (i * Chunk.SliceHeight), gameObject.transform.position.z);
 			newObject.transform.parent = gameObject.transform;
 		}
-		
-		ChunkRenderer.render(Parent);
 	}
 	
 	// Update is called once per frame

@@ -2,47 +2,127 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using ChunkRendering;
+using CustomGenerator;
+using System.Threading;
 
 public class WorldBehaviour : MonoBehaviour {
 
 	public Chunk[] ChunksMap = new Chunk[ushort.MaxValue];
+	
+	public static Queue<ChunkSliceEntry> ChunkSlicesToBuild = new Queue<ChunkSliceEntry>();
+	private static Queue<ChunkSliceEntry> ChunkSlicesWorkingQueue = new Queue<ChunkSliceEntry>();
+	
+	public static object ChunkQueueLock = new object();
+	
+	private float accumulator;
+	
+	private int ChunksNum = 21*21;
+	
 	// Use this for initialization
 	void Start () {
+		
+		CustomChunkGenerator chunkGenerator = new CustomChunkGenerator();
+		
+		chunkGenerator.Init(13284938921);
 		
 		GameObject camera = GameObject.Find("Main Camera");
 		camera.transform.position = new Vector3(0,257,0);
 		
-		for(int x = -10; x < 10; ++x)
+		ChunkThreadEntry[] chunkEntries = new ChunkThreadEntry[ChunksNum];
+		int i = 0;
+		
+		ThreadPool.SetMaxThreads(12,12);	
+		
+		for(int x = -10; x < 11; ++x)
 		{
-			for(int z = -10; z < 10; ++z)
+			for(int z = -10; z < 11; ++z)
 			{
 				ushort index = (ushort)((x + 127) << 8 | (z + 127));
 				Chunk chunk = new Chunk(x,z, this, (z + x) % 2 == 0? Color.black : Color.gray);
-				//print("X: " + x + "Z: " + z + " " + index);
 				ChunksMap[index] = chunk;
+				
+				chunkGenerator.GenerateChunk(chunk, chunk.X, chunk.Z);
+				
+				chunkEntries[i] = new ChunkThreadEntry(chunk);
+				++i;
 			}
 		}
 		
-		/*ushort index = (ushort)(127 << 8 | 127);
-		Chunk chunk = new Chunk(0,0, this, Color.black);
-		ChunksMap[index] = chunk;*/
+		
+		for(int x = 0; x < ChunksNum; ++x)
+		{
+			ThreadPool.QueueUserWorkItem(new WaitCallback(chunkEntries[x].ThreadCallback));
+		}
+		
+		/*for(int x = 0; x < 4; ++x)
+			chunkEntries[x].ThreadCallback(null);*/
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		float deltaTime = Time.deltaTime;
+		
+		accumulator += deltaTime;
+		
+		if(accumulator >= 0.1f)
+		{
+			lock(ChunkQueueLock)
+			{
+				Queue<ChunkSliceEntry> temp = ChunkSlicesWorkingQueue;
+				ChunkSlicesWorkingQueue = ChunkSlicesToBuild;
+				ChunkSlicesToBuild = temp;
+			}
+			
+			for(int i = 0; ChunkSlicesWorkingQueue.Count != 0 && i < 40; ++i)
+			{
+				ChunkSliceEntry chunkEntry = ChunkSlicesWorkingQueue.Dequeue();
+				BuildChunkSliceMesh(chunkEntry);
+			}
+			
+			accumulator -= 0.1f;
+		}
 	}
 	
-	public byte GetBlockType(int x, int y, int z)
+	public void BuildChunkSliceMesh(ChunkSliceEntry chunkEntry)
+	{
+		// Build the Mesh:
+        Mesh mesh = new Mesh();
+        mesh.vertices = chunkEntry.Vertices.ToArray();
+        mesh.triangles = chunkEntry.Triangles.ToArray();
+		
+		Vector2[] uvs = new Vector2[chunkEntry.Vertices.Count];
+		for (int k = 0; k < uvs.Length; k++)
+    		uvs[k] = new Vector2 (chunkEntry.Vertices[k].x, chunkEntry.Vertices[k].z);
+		
+		mesh.uv = uvs;
+		
+		mesh.colors = chunkEntry.Colors.ToArray();
+		
+		mesh.RecalculateNormals();
+		mesh.RecalculateBounds ();
+		
+		ChunkBehaviour behaviour = chunkEntry.ParentChunk.ChunkObject.GetComponent<ChunkBehaviour>();
+		GameObject chunkSliceObject = behaviour.ChunkSliceObjects[chunkEntry.SliceIndex];
+		MeshFilter filter = chunkSliceObject.GetComponent<MeshFilter>();
+		filter.mesh = mesh;
+	}
+	
+	public int GetBlockType(int x, int y, int z)
 	{	
 		int chunkX = x >> 4;
 		int chunkZ = z >> 4;
 		
-		Chunk chunk = ChunksMap[(chunkX + 127) << 8 | (chunkZ + 127)];
+		Chunk chunk = GetChunk(chunkX, chunkZ);
+		
 		if(chunk == null)
-			return 0;
+			return -1; // We return -1 so that is different from air and we don't build side faces of the blocks
 		
 		ChunkSlice slice = chunk.Slices[y / Chunk.SliceHeight];
 		return slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF];
+	}
+	
+	public Chunk GetChunk(int x, int z)
+	{
+		return ChunksMap[(x + 127) << 8 | (z + 127)];
 	}
 }
