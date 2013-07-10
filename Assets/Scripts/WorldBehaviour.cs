@@ -14,12 +14,22 @@ public class WorldBehaviour : MonoBehaviour {
 	
 	public static object ChunkQueueLock = new object();
 	
+	public static Texture2D AtlasTexture;
+	
+	public static Material BlockMaterial;
+	
 	private float accumulator;
 	
 	private int ChunksNum = 21*21;
 	
 	// Use this for initialization
 	void Start () {
+		
+		BlockMaterial = (Material)Resources.Load ("Materials/BlockVertex", typeof(Material));
+		AtlasTexture = (Texture2D)Resources.Load("Textures/terrain");
+		
+		if(AtlasTexture == null)
+			Debug.Log("Terrain texture not loaded!!!");
 		
 		CustomChunkGenerator chunkGenerator = new CustomChunkGenerator();
 		
@@ -81,6 +91,9 @@ public class WorldBehaviour : MonoBehaviour {
 			
 			accumulator -= 0.1f;
 		}
+		
+		if (Input.GetKey(KeyCode.Escape))
+        	Application.Quit();
 	}
 	
 	public void BuildChunkSliceMesh(ChunkSliceEntry chunkEntry)
@@ -90,11 +103,11 @@ public class WorldBehaviour : MonoBehaviour {
         mesh.vertices = chunkEntry.Vertices.ToArray();
         mesh.triangles = chunkEntry.Triangles.ToArray();
 		
-		Vector2[] uvs = new Vector2[chunkEntry.Vertices.Count];
+		/*Vector2[] uvs = new Vector2[chunkEntry.Vertices.Count];
 		for (int k = 0; k < uvs.Length; k++)
-    		uvs[k] = new Vector2 (chunkEntry.Vertices[k].x, chunkEntry.Vertices[k].z);
+    		uvs[k] = new Vector2 (chunkEntry.Vertices[k].x, chunkEntry.Vertices[k].z);*/
 		
-		mesh.uv = uvs;
+		mesh.uv = chunkEntry.Uvs.ToArray();
 		
 		mesh.colors = chunkEntry.Colors.ToArray();
 		

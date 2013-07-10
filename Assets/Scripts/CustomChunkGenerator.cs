@@ -17,7 +17,6 @@
 /* Ported and modified by Stefano Bonicatti <smjert@gmail.com> */
 
 using System;
-using Chraft.Utilities.Blocks;
 
 namespace CustomGenerator
 {
@@ -113,22 +112,22 @@ namespace CustomGenerator
                     {
                         //int index = bx << 11 | bz << 7 | by;
                         if (by == 0) // First bedrock Layer
-                            c.SetType(bx, by, bz, BlockData.Blocks.Bedrock, false);
+                            c.SetType(bx, by, bz, BlockType.Bedrock, false);
 
                         else if (by > 0 && by < 5 && _FastRandom.randomDouble() > 0.3) // Randomly put blocks of the remaining 4 layers of bedrock
-                            c.SetType(bx, by, bz, BlockData.Blocks.Bedrock, false);
+                            c.SetType(bx, by, bz, BlockType.Bedrock, false);
 
                         else if (by <= 55)
-                            c.SetType(bx, by, bz, BlockData.Blocks.Stone, false);
+                            c.SetType(bx, by, bz, BlockType.Stone, false);
                         else
                         {
                             if (by > 55 && by < 64)
                             {
-                                c.SetType(bx, by, bz, BlockData.Blocks.Still_Water, false);
+                                c.SetType(bx, by, bz, BlockType.Still_Water, false);
                                 if (by == 63 && type == BIOME_TYPE.SNOW)
                                 {
                                     //c.SetBiomeColumn(bx, bz, (byte)BIOME_TYPE.SNOW);
-                                    c.SetType(bx, by, bz, BlockData.Blocks.Ice, false);
+                                    c.SetType(bx, by, bz, BlockType.Ice, false);
                                 }
                             }
 
@@ -155,7 +154,7 @@ namespace CustomGenerator
                                 firstBlockHeight = -1;
                         }
 
-                        if (c.GetType(bx, by, bz) == BlockData.Blocks.Stone)
+                        if (c.GetType(bx, by, bz) == BlockType.Stone)
                             GenerateResource(bx, by, bz, c);
                     }
                 }
@@ -167,17 +166,17 @@ namespace CustomGenerator
 
 
             if (r.Next(100 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Diamond_Ore, false);
+                c.SetType(x, y, z, BlockType.Diamond_Ore, false);
             else if (r.Next(100 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Lapis_Lazuli_Ore, false);
+                c.SetType(x, y, z, BlockType.Lapis_Lazuli_Ore, false);
             else if (r.Next(40 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Gold_Ore, false);
+                c.SetType(x, y, z, BlockType.Gold_Ore, false);
             else if (r.Next(10 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Redstone_Ore_Glowing, false);
+                c.SetType(x, y, z, BlockType.Redstone_Ore_Glowing, false);
             else if (r.Next(4 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Iron_Ore, false);
+                c.SetType(x, y, z, BlockType.Iron_Ore, false);
             else if (r.Next(2 * y) == 0)
-                c.SetType(x, y, z, BlockData.Blocks.Coal_Ore, false);
+                c.SetType(x, y, z, BlockType.Coal_Ore, false);
             
         }
 
@@ -195,16 +194,16 @@ namespace CustomGenerator
                         int worldY = by;
                         //int index = bx << 11 | bz << 7 | by + 1;
 
-                        if (c.GetType(bx, by, bz) == BlockData.Blocks.Grass && c.GetType(bx, by + 1, bz) == (byte)BlockData.Blocks.Air)
+                        if (c.GetType(bx, by, bz) == BlockType.Grass && c.GetType(bx, by + 1, bz) == (byte)BlockType.Air)
                         {
-                            double grassDens = CalcGrassDensity(worldX, worldZ);
+                            /*double grassDens = CalcGrassDensity(worldX, worldZ);
                             if (grassDens > 0.0)
                             {
                                 // Generate high grass.
                                 double rand = _FastRandom.standNormalDistrDouble();
                                 if (rand > -0.2 && rand < 0.2)
                                 {
-                                    c.SetType(bx, by + 1, bz, BlockData.Blocks.TallGrass, false);
+                                    c.SetType(bx, by + 1, bz, BlockType.TallGrass, false);
                                     c.SetData(bx, by + 1, bz, 1, false);
                                 }
 
@@ -213,11 +212,11 @@ namespace CustomGenerator
                                 if (_FastRandom.standNormalDistrDouble() < -2)
                                 {
                                     if (_FastRandom.randomBoolean())
-                                        c.SetType(bx, by + 1, bz, BlockData.Blocks.Rose, false);
+                                        c.SetType(bx, by + 1, bz, BlockType.Rose, false);
                                     else
-                                        c.SetType(bx, by + 1, bz, BlockData.Blocks.Yellow_Flower, false);
+                                        c.SetType(bx, by + 1, bz, BlockType.Yellow_Flower, false);
                                 }
-                            }
+                            }*/
 
                             if (by < 110 && bx % 4 == 0 && bz % 4 == 0)
                             {
@@ -238,10 +237,10 @@ namespace CustomGenerator
                                     else if (randZ > 15)
                                         randZ = 12;
 
-                                    if (c.GetType(randX, by, randZ) == BlockData.Blocks.Grass)
+                                    if (c.GetType(randX, by, randZ) == BlockType.Grass)
                                         GenerateTree(c, randX, by, randZ);
                                     
-                                    else if (biome == BIOME_TYPE.DESERT && c.GetType(randX, by, randZ) == BlockData.Blocks.Sand)
+                                    else if (biome == BIOME_TYPE.DESERT && c.GetType(randX, by, randZ) == BlockType.Sand)
                                         GenerateCactus(c, randX, by, randZ);
                                     
                                 }
@@ -260,7 +259,7 @@ namespace CustomGenerator
                 return;
 
             for (int by = height; by < y + height; ++y)
-                c.SetType(x, y, z, BlockData.Blocks.Cactus, false);
+                c.SetType(x, y, z, BlockType.Cactus, false);
         }
 
         private void GenerateTree(Chunk c, int x, int y, int z)
@@ -278,20 +277,20 @@ namespace CustomGenerator
                 for (int bx = x - 2; bx <= x + 2; bx++)
                     for (int bz = z - 2; bz <= z + 2; bz++)
                     {
-                        c.SetType(bx, by, bz, BlockData.Blocks.Leaves, false);
+                        c.SetType(bx, by, bz, BlockType.Leaves, false);
                         c.SetData(bx, by, bz, 0, false);
                     }
 
             for (int bx = x - 1; bx <= x + 1; bx++)
                 for (int bz = z - 1; bz <= z + 1; bz++)
                 {
-                    c.SetType(bx, y + 6, bz, BlockData.Blocks.Leaves, false);
+                    c.SetType(bx, y + 6, bz, BlockType.Leaves, false);
                     c.SetData(bx, y + 6, bz, 0, false);
                 }
 
             for (int by = y + 1; by < y + 6; by++)
             {
-                c.SetType(x, by, z, BlockData.Blocks.Wood, false);
+                c.SetType(x, by, z, BlockType.Wood, false);
                 c.SetData(x, by, z, 0, false);
             }
             //}
@@ -431,7 +430,7 @@ namespace CustomGenerator
                 if (y >= 60 && y <= 66)
                 {
                     //c.SetBiomeColumn(x, z, (byte)BIOME_TYPE.MOUNTAINS);
-                    c.SetType(x, y, z, BlockData.Blocks.Sand, false);
+                    c.SetType(x, y, z, BlockType.Sand, false);
                     break;
                 }
 
@@ -439,17 +438,17 @@ namespace CustomGenerator
                 if (heightPercentage == 0.0 && y > 66)
                 {
                     // Grass on top
-                    c.SetType(x, y, z, BlockData.Blocks.Grass, false);
+                    c.SetType(x, y, z, BlockType.Grass, false);
                 }
                 else if (heightPercentage > 0.2)
                 {
                     // Stone
-                    c.SetType(x, y, z, BlockData.Blocks.Stone, false);
+                    c.SetType(x, y, z, BlockType.Stone, false);
                 }
                 else
                 {
                     // Dirt
-                    c.SetType(x, y, z, BlockData.Blocks.Dirt, false);
+                    c.SetType(x, y, z, BlockType.Dirt, false);
                 }
 
                 GenerateRiver(c, x, y, z, heightPercentage, type);
@@ -460,17 +459,17 @@ namespace CustomGenerator
                 if (heightPercentage == 0.0 && y > 65)
                 {
                     // Snow on top
-                    c.SetType(x, y, z, BlockData.Blocks.Snow, false);
+                    c.SetType(x, y, z, BlockType.Snow, false);
                     // Grass under the snow
-                    c.SetType(x, y - 1, z, BlockData.Blocks.Grass, false);
+                    c.SetType(x, y - 1, z, BlockType.Grass, false);
                 }
 
                 else if (heightPercentage > 0.2)
                     // Stone
-                    c.SetType(x, y, z, BlockData.Blocks.Stone, false);
+                    c.SetType(x, y, z, BlockType.Stone, false);
                 else
                     // Dirt
-                    c.SetType(x, y, z, BlockData.Blocks.Dirt, false);
+                    c.SetType(x, y, z, BlockType.Dirt, false);
                 
 
                 GenerateRiver(c, x, y, z, heightPercentage, type);
@@ -481,11 +480,11 @@ namespace CustomGenerator
                 /*if (heightPercentage > 0.6 && y < 75)
                 {
                     // Stone
-                    data[x << 11 | z << 7 | y] = (byte)BlockData.Blocks.Stone;
+                    data[x << 11 | z << 7 | y] = (byte)BlockType.Stone;
                 }
                 else*/
                 if (y < 80)
-                    c.SetType(x, y, z, BlockData.Blocks.Sand, false);              
+                    c.SetType(x, y, z, BlockType.Sand, false);              
 
                 break;
 
@@ -504,17 +503,17 @@ namespace CustomGenerator
             if (lakeIntens < 0.2)
             {
                 if (heightPercentage < 0.001)
-                    c.SetType(x, y, z, BlockData.Blocks.Air, false);
+                    c.SetType(x, y, z, BlockType.Air, false);
                 else if (heightPercentage < 0.02)
                 {
                     if (type == BIOME_TYPE.SNOW)
                     {
                         // To be sure that there's no snow above us
-                        c.SetType(x, y + 1, z, BlockData.Blocks.Air, false);
-                        c.SetType(x, y, z, BlockData.Blocks.Ice, false);
+                        c.SetType(x, y + 1, z, BlockType.Air, false);
+                        c.SetType(x, y, z, BlockType.Ice, false);
                     }
                     else
-                        c.SetType(x, y, z, BlockData.Blocks.Still_Water, false);
+                        c.SetType(x, y, z, BlockType.Still_Water, false);
                     
                 }
             }
@@ -536,7 +535,7 @@ namespace CustomGenerator
 
         private void GenerateInnerLayer(int x, int y, int z, BIOME_TYPE type, Chunk c)
         {
-            c.SetType(x, y, z, BlockData.Blocks.Stone, false);
+            c.SetType(x, y, z, BlockType.Stone, false);
 
         }
 

@@ -16,8 +16,10 @@ public class ChunkBehaviour : MonoBehaviour {
 			GameObject newObject = new GameObject();
 			ChunkSliceObjects[i] = newObject;			
 			MeshRenderer meshRenderer = newObject.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-			meshRenderer.material = new Material(Shader.Find("Diffuse"));
-			meshRenderer.material.color = Parent.ChunkColor;
+			meshRenderer.material = WorldBehaviour.BlockMaterial;
+			meshRenderer.material.mainTexture = WorldBehaviour.AtlasTexture;
+			meshRenderer.sharedMaterial = WorldBehaviour.BlockMaterial;
+			//meshRenderer.material.color = Parent.ChunkColor;
 			newObject.AddComponent(typeof(MeshFilter));
 			newObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y + (i * Chunk.SliceHeight), gameObject.transform.position.z);
 			newObject.transform.parent = gameObject.transform;

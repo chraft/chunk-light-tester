@@ -7,6 +7,10 @@ namespace ChunkRendering
 {
 	class ChunkRenderer
 	{
+		private static Color firstSideColor = new Color(0.9f, 0.9f, 0.9f, 1.0f);
+		private static Color secondSideColor = new Color(0.8f, 0.8f, 0.8f, 1.0f);
+		private static Color topColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+		private static Color bottomColor = new Color(0.7f, 0.7f, 0.7f, 1.0f);
 	    public static void render(Chunk chunk)
 	    {
 			WorldBehaviour world = chunk.World;
@@ -39,12 +43,15 @@ namespace ChunkRendering
 				List<Vector3> vertices = new List<Vector3>();
 	        	List<int> triangles = new List<int>();
 				List<Color> colors = new List<Color>();
+				List<Vector2> uvs = new List<Vector2>();
 				ChunkSlice chunkSlice = chunk.Slices[i];
 				
 				
 				
 				if(i < minSliceIndex)
 					break;
+				
+				float epsilon = 0.00f;
 				
 				/*watch.Reset();
 				watch.Start();*/
@@ -91,13 +98,22 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
 							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+								colors.Add(topColor);
+								colors.Add(topColor);
+								colors.Add(topColor);
+								colors.Add(topColor);
 							
-								//BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Top);
-					
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Top);
+								
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMax, yMin));							
+								uvs.Add(new Vector2(xMax, yMax));
 		                    }
 						
 							int front;
@@ -127,11 +143,27 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+2);
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
-							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Side);
+								/*uvs.Add(new Vector2(coords.x + epsilon, coords.y + epsilon));
+								uvs.Add(new Vector2(coords.x + epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + epsilon));*/
+								
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMax, yMax));							
+								uvs.Add(new Vector2(xMax, yMin));
 		                    }
 						
 							int right;
@@ -163,10 +195,26 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
 							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Side);
+								
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMax, yMax));							
+								uvs.Add(new Vector2(xMax, yMin));
+								/*uvs.Add(new Vector2(coords.x + epsilon, coords.y + epsilon));
+								uvs.Add(new Vector2(coords.x + epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + epsilon));*/
 		                    }
 						
 							int back;
@@ -198,10 +246,27 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
 							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								colors.Add(firstSideColor);
+								
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Side);
+								
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMax, yMax));							
+								uvs.Add(new Vector2(xMax, yMin));
+								
+								/*uvs.Add(new Vector2(coords.x + epsilon, coords.y + epsilon));
+								uvs.Add(new Vector2(coords.x + epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + epsilon));*/
 		                    }
 						
 							int left;
@@ -233,10 +298,26 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
 							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								colors.Add(secondSideColor);
+								
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Side);
+								
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMax, yMax));							
+								uvs.Add(new Vector2(xMax, yMin));
+								/*uvs.Add(new Vector2(coords.x + epsilon, coords.y + epsilon));
+								uvs.Add(new Vector2(coords.x + epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + epsilon));*/
 		                    }
 						
 							byte bottom;
@@ -262,10 +343,26 @@ namespace ChunkRendering
 		                        triangles.Add(vertexIndex+3);
 		                        triangles.Add(vertexIndex);
 							
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
-								colors.Add(Color.gray);
+								colors.Add(bottomColor);
+								colors.Add(bottomColor);
+								colors.Add(bottomColor);
+								colors.Add(bottomColor);
+								
+								Rect coords = BlockUVs.GetUVFromTypeAndFace((BlockType)block, BlockFace.Bottom);
+								float yMax = coords.y + coords.height - epsilon;
+								float xMax = coords.x + coords.width - epsilon;
+								float xMin = coords.x + epsilon;
+								float yMin = coords.y + epsilon;
+								
+								uvs.Add(new Vector2(xMin, yMin));
+								uvs.Add(new Vector2(xMin, yMax));
+								uvs.Add(new Vector2(xMax, yMax));							
+								uvs.Add(new Vector2(xMax, yMin));
+								
+								/*uvs.Add(new Vector2(coords.x + epsilon, coords.y + epsilon));
+								uvs.Add(new Vector2(coords.x + epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + coords.height - epsilon));
+								uvs.Add(new Vector2(coords.x + coords.width - epsilon, coords.y + epsilon));*/
 		                    }
 		                }
 					}
@@ -278,6 +375,7 @@ namespace ChunkRendering
 				chunkEntry.Vertices = vertices;
 				chunkEntry.Triangles = triangles;
 				chunkEntry.Colors = colors;
+				chunkEntry.Uvs = uvs;
 				chunkEntry.ParentChunk = chunk;
 				chunkEntry.SliceIndex = i;
 				

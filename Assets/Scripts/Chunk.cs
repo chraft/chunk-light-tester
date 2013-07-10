@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using ChunkRendering;
 using System;
-using Chraft.Utilities.Blocks;
 
 public class Chunk
 {
@@ -60,13 +59,13 @@ public class Chunk
 		MinSliceIndex = lowestY / Chunk.SliceHeight;*/
 	}
 	
-	public BlockData.Blocks GetType(int x, int y, int z)
+	public BlockType GetType(int x, int y, int z)
 	{
 		ChunkSlice slice = Slices[y / Chunk.SliceHeight];
-		return (BlockData.Blocks)slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF];
+		return (BlockType)slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF];
 	}
 	
-	public void SetType(int x, int y, int z, BlockData.Blocks type, bool unused)
+	public void SetType(int x, int y, int z, BlockType type, bool unused)
 	{
 		ChunkSlice slice = Slices[y / Chunk.SliceHeight];
 		slice[x & 0xF, y & Chunk.SliceHeightLimit, z & 0xF] = (byte)type;
@@ -93,8 +92,8 @@ public class Chunk
     public void RecalculateHeight(int x, int z)
     {
         int height;
-        BlockData.Blocks blockType;
-        for (height = 127; height > 0 && (GetType(x, height - 1, z) == 0 || (blockType = GetType(x, height - 1, z)) == BlockData.Blocks.Leaves || blockType == BlockData.Blocks.Water || blockType == BlockData.Blocks.Still_Water); height--) ;
+        BlockType blockType;
+        for (height = 127; height > 0 && (GetType(x, height - 1, z) == 0 || (blockType = GetType(x, height - 1, z)) == BlockType.Leaves || blockType == BlockType.Water || blockType == BlockType.Still_Water); height--) ;
         HeightMap[x, z] = (byte)height;
 
         if (height < lowestY)
