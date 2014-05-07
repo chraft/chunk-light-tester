@@ -97,7 +97,7 @@ public class WorldBehaviour : MonoBehaviour {
 	void Update () {
 			
 		if (Input.GetKeyUp(KeyCode.Escape))
-        	Application.Quit();
+			Application.Quit();
 		else if(Input.GetKeyUp(KeyCode.L))
 			CalculateTestLight();
 	}
@@ -152,9 +152,9 @@ public class WorldBehaviour : MonoBehaviour {
 	public void BuildChunkSliceMesh(ChunkSliceBuildEntry chunkEntry)
 	{
 		// Build the Mesh:
-        Mesh mesh = new Mesh();
-        mesh.vertices = chunkEntry.Vertices;
-        //mesh.SetIndices(chunkEntry.Triangles, MeshTopology.Quads, 0);
+		Mesh mesh = new Mesh();
+		mesh.vertices = chunkEntry.Vertices;
+		//mesh.SetIndices(chunkEntry.Triangles, MeshTopology.Quads, 0);
 		
 		mesh.triangles = chunkEntry.Triangles;
 		

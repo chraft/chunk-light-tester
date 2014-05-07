@@ -364,28 +364,28 @@ public class Chunk
 	}
 	
 	public void RecalculateHeight()
-    {
+	{
 		LowestY = 255;
-        HeightMap = new byte[16, 16];
-        for (int x = 0; x < 16; x++)
-        {
-            for (int z = 0; z < 16; z++)
-                RecalculateHeight(x, z);
-        }
+	HeightMap = new byte[16, 16];
+	for (int x = 0; x < 16; x++)
+	{
+		for (int z = 0; z < 16; z++)
+			RecalculateHeight(x, z);
+	}
 		
 		MinSliceIndex = (LowestY / Chunk.SliceHeight) - 1;
-    }
+	}
 
-    public void RecalculateHeight(int x, int z)
-    {
-        int height;
-        BlockType blockType;
-        for (height = 127; height > 0 && (GetBlockType(x, height - 1, z) == 0 || (blockType = GetBlockType(x, height - 1, z)) == BlockType.Leaves || blockType == BlockType.Water || blockType == BlockType.Still_Water); height--) ;
-        HeightMap[x, z] = (byte)height;
+	public void RecalculateHeight(int x, int z)
+	{
+		int height;
+		BlockType blockType;
+		for (height = 127; height > 0 && (GetBlockType(x, height - 1, z) == 0 || (blockType = GetBlockType(x, height - 1, z)) == BlockType.Leaves || blockType == BlockType.Water || blockType == BlockType.Still_Water); height--) ;
+		HeightMap[x, z] = (byte)height;
 
-        if (height < LowestY)
-            LowestY = height;
-    }
+	if (height < LowestY)
+		LowestY = height;
+	}
 	
 	public void ClearDirtySlices()
 	{

@@ -17,61 +17,58 @@
 
 namespace Chraft.Utilities.Misc
 {
-    public class NibbleArray
-    {
-        public byte[] Data;
-        public NibbleArray(int i)
-        {
-            Data = new byte[i];
-        }
+	public class NibbleArray
+	{
+		public byte[] Data;
 
-        public NibbleArray(byte[] data)
-        {
-            Data = data;
-        }
+		public NibbleArray (int i)
+		{
+			Data = new byte[i];
+		}
 
-        public int getNibble(int blockX, int blockY, int blockZ)
-        {
+		public NibbleArray (byte[] data)
+		{
+			Data = data;
+		}
 
-            return getNibble(blockY << 8 | blockZ << 4 | blockX);
-        }
+		public int getNibble (int blockX, int blockY, int blockZ)
+		{
 
-        public int getNibble(int packed)
-        {
-            int i1 = packed >> 1;
-            int j1 = packed & 1;
-            if(j1 == 0)
-            {
-                return Data[i1] & 0xf;
-            } else
-            {
-                return Data[i1] >> 4 & 0xf;
-            }
-        }
+			return getNibble (blockY << 8 | blockZ << 4 | blockX);
+		}
 
-        public void setNibble(int blockX, int blockY, int blockZ, byte value)
-        {
-            setNibble(blockY << 8 | blockZ << 4 | blockX, value);
-        }
+		public int getNibble (int packed)
+		{
+			int i1 = packed >> 1;
+			int j1 = packed & 1;
+			if (j1 == 0) {
+				return Data [i1] & 0xf;
+			} else {
+				return Data [i1] >> 4 & 0xf;
+			}
+		}
 
-        public void setNibble(int packed, byte value)
-        {
-            int j1 = packed >> 1;
-            int k1 = packed & 1;
-            if(k1 == 0)
-            {
-                Data[j1] = (byte)(Data[j1] & 0xf0 | value & 0xf);
-            } else
-            {
-                 Data[j1] = (byte)(Data[j1] & 0xf | (value & 0xf) << 4);
-            }
-        }
+		public void setNibble (int blockX, int blockY, int blockZ, byte value)
+		{
+			setNibble (blockY << 8 | blockZ << 4 | blockX, value);
+		}
 
-        public bool isValid()
-        {
-            return Data != null;
-        }
+		public void setNibble (int packed, byte value)
+		{
+			int j1 = packed >> 1;
+			int k1 = packed & 1;
+			if (k1 == 0) {
+				Data [j1] = (byte)(Data [j1] & 0xf0 | value & 0xf);
+			} else {
+				Data [j1] = (byte)(Data [j1] & 0xf | (value & 0xf) << 4);
+			}
+		}
+
+		public bool isValid ()
+		{
+			return Data != null;
+		}
 
         
-    }
+	}
 }
