@@ -23,6 +23,9 @@ namespace CustomGenerator
     public class CustomChunkGenerator
     {
         private bool GenInit = false;
+		
+		
+		private int ChunkHeight = 128;
 
         private PerlinNoise _Gen1;
         private PerlinNoise _Gen2;
@@ -80,7 +83,7 @@ namespace CustomGenerator
 
         private void GenerateTerrain(Chunk c, int x, int z)
         {           
-            double[, ,] density = new double[17, 129, 17];
+            double[, ,] density = new double[17, ChunkHeight + 1, 17];
 
             // Build the density map with lower resolution, 4*4*16 instead of 16*16*128
             for (int bx = 0; bx <= 16; bx += 4)
@@ -90,7 +93,7 @@ namespace CustomGenerator
                 {
                     BIOME_TYPE type = CalcBiomeType(x, z);
                     int worldZ = bz + (z * 16);
-                    for (int by = 0; by <= 128; by += 8)
+                    for (int by = 0; by <= ChunkHeight; by += 8)
                     {
                         density[bx, by, bz] = CalcDensity(worldX, by, worldZ, type);
                     }
@@ -108,7 +111,7 @@ namespace CustomGenerator
                     int firstBlockHeight = -1;
 
                     BIOME_TYPE type = CalcBiomeType(worldX, worldZ);
-                    for (int by = 127; by >= 0; --by)
+                    for (int by = ChunkHeight - 1; by >= 0; --by)
                     {
                         //int index = bx << 11 | bz << 7 | by;
                         if (by == 0) // First bedrock Layer
@@ -154,7 +157,7 @@ namespace CustomGenerator
                                 firstBlockHeight = -1;
                         }
 
-                        if (c.GetBlockType(bx, by, bz) == BlockType.Stone)
+                        if (c.GetType(bx, by, bz) == BlockType.Stone)
                             GenerateResource(bx, by, bz, c);
                     }
                 }
@@ -189,12 +192,12 @@ namespace CustomGenerator
                 for (int bz = 0; bz < 16; ++bz)
                 {
                     int worldZ = bz + z * 16;
-                    for (int by = 64; by < 128; ++by)
+                    for (int by = 64; by < ChunkHeight; ++by)
                     {
                         int worldY = by;
                         //int index = bx << 11 | bz << 7 | by + 1;
 
-                        if (c.GetBlockType(bx, by, bz) == BlockType.Grass && c.GetBlockType(bx, by + 1, bz) == (byte)BlockType.Air)
+                        if (c.GetType(bx, by, bz) == BlockType.Grass && c.GetType(bx, by + 1, bz) == (byte)BlockType.Air)
                         {
                             /*double grassDens = CalcGrassDensity(worldX, worldZ);
                             if (grassDens > 0.0)
@@ -218,7 +221,7 @@ namespace CustomGenerator
                                 }
                             }*/
 
-                            if (by < 110 && bx % 4 == 0 && bz % 4 == 0)
+                            if (by < ChunkHeight - 18 && bx % 4 == 0 && bz % 4 == 0)
                             {
                                 double forestDens = CalcForestDensity(worldX, worldZ);
 
@@ -237,10 +240,10 @@ namespace CustomGenerator
                                     else if (randZ > 15)
                                         randZ = 12;
 
-                                    if (c.GetBlockType(randX, by, randZ) == BlockType.Grass)
+                                    if (c.GetType(randX, by, randZ) == BlockType.Grass)
                                         GenerateTree(c, randX, by, randZ);
                                     
-                                    else if (biome == BIOME_TYPE.DESERT && c.GetBlockType(randX, by, randZ) == BlockType.Sand)
+                                    else if (biome == BIOME_TYPE.DESERT && c.GetType(randX, by, randZ) == BlockType.Sand)
                                         GenerateCactus(c, randX, by, randZ);
                                     
                                 }
@@ -310,9 +313,9 @@ namespace CustomGenerator
         private bool CanSeeTheSky(int x, int y, int z, Chunk c)
         {
             int by;
-            for (by = y; c.GetBlockType(x,y,z) == 0 && by < 128; ++by) ;
+            for (by = y; c.GetType(x,y,z) == 0 && by < ChunkHeight; ++by) ;
 
-            return by == 128;
+            return by == ChunkHeight;
         }
 
         private double CalcForestDensity(double x, double z)
@@ -420,7 +423,7 @@ namespace CustomGenerator
 
         private void GenerateOuterLayer(int x, int y, int z, int firstBlockHeight, BIOME_TYPE type, Chunk c)
         {
-            double heightPercentage = (firstBlockHeight - y) / 128.0;
+            double heightPercentage = (firstBlockHeight - y) / (float)ChunkHeight;
 
             switch (type)
             {
@@ -568,7 +571,7 @@ namespace CustomGenerator
             for(int x = 0; x < 16; ++x)
             {
                 int offsetX = (x/4)*4;
-                for (int y = 0; y < 128; y++)
+                for (int y = 0; y < ChunkHeight; y++)
                 {
                     int offsetY = (y/8)*8;
                     for (int z = 0; z < 16; z++)

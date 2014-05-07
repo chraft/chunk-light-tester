@@ -28,7 +28,7 @@ Shader "Vertex Color Unlit" {
 		    };
 	        struct vertexOutput 
 	        {
-	            float4 pos : SV_POSITION;
+	            float4 pos : POSITION;
 	            float2 uv : TEXCOORD0;
 	            float4 color: COLOR0;
 	        };

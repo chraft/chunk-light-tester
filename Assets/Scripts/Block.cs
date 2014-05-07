@@ -190,4 +190,5 @@ public enum BlockType : byte
     Carpet = 171,
     Hardened_Clay = 172,
     Block_Of_Coal = 173,
+	NULL = 255
 }
